@@ -1,0 +1,21 @@
+{
+	"manifest_version": 2,
+	
+	"name": "AutoCheckinMR",
+	"version": "0.7.2",
+	
+	"description": "Auto Check in Meeting Room",
+	"browser_action": {
+		"name": "Augo Check in Meeting Room",
+		"default_icon": "checkmark.png",
+		"default_title": "Auto Check in Meeting Room",
+		"default_popup": "popup.html"
+	},
+	"permissions": [
+		"http://meeting.baidu.com/"
+	],
+	"content_scripts": [{
+		"js": ["jquery-2.1.3.min.js", "background.js"],
+		"matches": ["http://*/*", "https://*/*"]
+	}]
+}
