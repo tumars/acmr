@@ -9,7 +9,7 @@ function check()  {
 	xhr.onreadystatechange = function() {
 	  if (xhr.readyState == 4) {
 		// WARNING! Might be evaluating an evil script!
-		meetingList = xhr.responseText;
+		meetingList = xhr.responseText.trim();
 		var checkInLink = $(meetingList).find(
 		'#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)' );
 		//console.info(checkInLink);
@@ -40,5 +40,5 @@ function check()  {
 	 //location.reload() ;
 }
 
-var t=self.setInterval("check()",  10 * 60 * 1000)
+var t=self.setInterval(check,  10 * 60 * 1000)
  
