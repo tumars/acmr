@@ -1,7 +1,10 @@
 var meetingListUrl = "http://meeting.baidu.com/web/scheduleList?pageNo=1&dateStr=&buildingId=&roomName=";
 var meetingCheckInUrl = "http://meeting.baidu.com/web/checkIn?scheduleId=";
+// test url
+// var meetingListUrl = "http://127.1.1.1/test.html"
+// var meetingCheckInUrl = "http://127.1.1.1/index?scheduleId=";
 
-
+var count = 0;
 function check() {
     var htmlPage;
     var xhr = new XMLHttpRequest();
@@ -11,7 +14,6 @@ function check() {
         if(xhr.readyState == 4) {
             htmlPage = xhr.responseText.trim();
             var checkInLink = $(htmlPage).find('#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)');
-
             // console.log(checkInLink);
             var rooms = checkInLink.length;
             if (rooms !== 0) {
@@ -25,25 +27,50 @@ function check() {
 
                         if (clickevent.search('checkIn') > 0 && ids !== null) {
                             var url = meetingCheckInUrl + ids[0] + "&random=" + Math.random();
-                            $.ajax({url: url, async:true})
-                            .done(function() {
-                                console.log("check in, dada~~");
-                            })
-                            .fail(function(jqXHR, status, err) {
-                                console.log(arguments);
-                                console.log("fail code: ", status);
-                                console.log("Error: ", err);
-                            })
+                            console.log(url);
+                            $.ajax({
+                                url: url,
+                                async:true,
+                                timeout: 4000
+                            });
+                            console.log("check in, dada~~");
                         }
 
                     }
                 }
             }
+            console.log('runtime: ', ++count);
         }
     }
 }
 
 var timer = self.setInterval(check, 6 * 10 * 1000);
+// var timer = self.setInterval(check, 3 * 1000);
 
 
-// chrome.runtime.onMessage.addListener( function())
+// cookie test
+var cookieSetUrl = "http://127.1.1.1/getcookie.php";
+var cookieEcoUrl = "http://127.1.1.1/echocookie.php"
+function testCheck() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", cookieSetUrl, true);
+    xhr.send(null);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            $.ajax({
+                url: cookieEcoUrl,
+                async: true,
+                timeout: 4000,
+            })
+            .done(function(data) {
+                console.log(data);
+            })
+            console.log('runtime: ', ++count);
+        }
+    }
+
+}
+// var testTimer = self.setInterval(testCheck, 3 * 1000);
+// setTimeout(function() {
+//     clearInterval(testTimer);
+// }, 8 * 1000)

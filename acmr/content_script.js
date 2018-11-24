@@ -1,23 +1,43 @@
 var meetingListUrl = "http://meeting.baidu.com/web/scheduleList?pageNo=1&dateStr=&buildingId=&roomName=";
 var meetingCheckInUrl = "http://meeting.baidu.com/web/checkIn?scheduleId=";
 
-var testUrl = "http://127.1.1.1/"
-function testCheck() {
-    console.log('run test function');
+function check()  {
+    //var meetingList = $.ajax({url: meetingListUrl, async: false}).responseText;
     var meetingList;
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", testUrl, true);
-    xhr.send();
+    xhr.open("GET", meetingListUrl, true);
     xhr.onreadystatechange = function() {
-        console.log('status: ', xhr.readyState);
-        if(xhr.readyState == 4) {
+        if (xhr.readyState == 4) {
+            // WARNING! Might be evaluating an evil script!
             meetingList = xhr.responseText.trim();
-            console.log(meetingList);
+            var checkInLink = $(meetingList).find(
+                '#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)' );
+                //console.info(checkInLink);
+                var rooms = checkInLink.length;
+                if (rooms != 0) {
+                    for (var i = 0; i < rooms; i++){
+                        if (checkInLink[i].text == "签入") {
+                            console.info("Yeah, I found the meeting room need to check in...");
+
+                            var clickevent = checkInLink[i].getAttribute('onclick');
+                            var ids = clickevent.match(/[0-9]+/g);
+
+                            if (clickevent.search('checkIn') > 0 && ids != null) {
+                                var url = meetingCheckInUrl + ids[0] + "&random=" + Math.random();
+                                $.ajax({url: url, async:true});
+                            }
+                            console.info("check in, dada~~");
+                        }
+                    }
+                }
+
+            }
         }
+        xhr.send();
+        //console.info(meetingList);
+
+
+        //location.reload() ;
     }
-}
 
-
-
-// var t = self.setInterval(check,  10 * 60 * 1000)
-// var t = self.setInterval(testCheck, 2 * 1000)
+    // var t=self.setInterval("check()",  10 * 60 * 1000)
