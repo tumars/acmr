@@ -46,31 +46,3 @@ function check() {
 
 var timer = self.setInterval(check, 6 * 10 * 1000);
 // var timer = self.setInterval(check, 3 * 1000);
-
-
-// cookie test
-var cookieSetUrl = "http://127.1.1.1/getcookie.php";
-var cookieEcoUrl = "http://127.1.1.1/echocookie.php"
-function testCheck() {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", cookieSetUrl, true);
-    xhr.send(null);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            $.ajax({
-                url: cookieEcoUrl,
-                async: true,
-                timeout: 4000,
-            })
-            .done(function(data) {
-                console.log(data);
-            })
-            console.log('runtime: ', ++count);
-        }
-    }
-
-}
-// var testTimer = self.setInterval(testCheck, 3 * 1000);
-// setTimeout(function() {
-//     clearInterval(testTimer);
-// }, 8 * 1000)
