@@ -44,5 +44,5 @@ function check() {
     }
 }
 
-var timer = self.setInterval(check, 6 * 10 * 1000);
+var timer = self.setInterval(check, 10 * 60 * 1000);
 // var timer = self.setInterval(check, 3 * 1000);
