@@ -35,10 +35,11 @@ function check()  {
 	}
 	xhr.send();
 	//console.info(meetingList);
-	
-	
-	 //location.reload() ;
+	//location.reload() ;
 }
 
-var t=self.setInterval("check()",  10 * 60 * 1000)
- 
+//var t=self.setInterval("check()",  10 * 60 * 1000)
+var t = setInterval(function(){
+	check()
+	}, 10*60*1000
+); 
