@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 
 	"name": "AutoCheckinMR",
-	"version": "0.8.0",
+	"version": "0.8.1",
 
 	"description": "Auto Check in Meeting Room",
 	"browser_action": {
@@ -12,6 +12,7 @@
 		"default_popup": "popup.html"
 	},
 	"permissions": [
+        "cookies",
 		"http://meeting.baidu.com/"
 	],
     "background": {
