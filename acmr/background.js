@@ -3,15 +3,26 @@ var meetingCheckInUrl = "http://meeting.baidu.com/web/checkIn?scheduleId=";
 
 // check website cookies
 function validCookie(checkRoomsAction) {
-    chrome.cookies.get({
-        url: "http://meeting.baidu.com/",
-        name: "JSESSIONID"
-    }, function(cookie) {
-        if (cookie) {
+    chrome.cookies.getAll({
+        domain: 'baidu.com'
+    }, function(cookies) {
+        if (cookies.length > 2) {
+            // login
+            chrome.browserAction.setIcon({
+                path: 'checkmark.png'
+            }, function() {
+                isLogin = true;
+            });
             if (typeof checkRoomsAction === "function") {
                 checkRoomsAction();
             }
         } else {
+            // logout
+            chrome.browserAction.setIcon({
+                path: 'cross.png'
+            }, function() {
+                isLogin = false;
+            });
             chrome.runtime.sendMessage({
                 checked: false,
                 data: {info: "Missing cookies, please login first."}
@@ -81,6 +92,9 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
         check();
     }
 })
+
+// check login status
+
 
 // valide cookies
 validCookie()

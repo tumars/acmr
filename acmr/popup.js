@@ -5,9 +5,13 @@ checkBtn.addEventListener('click', function() {
     chrome.runtime.sendMessage({chekNow: true});
 })
 
+
+
 // listen room check status
 chrome.runtime.onMessage.addListener(function(request) {
+    console.log(request);
     if (request.checked) {
+        // room check success
         var checkRooms = request.data.checkRooms;
         if (checkRooms > 0) {
             checkResult.innerText = String(checkRooms) + " rooms have been checked in.";
@@ -18,9 +22,16 @@ chrome.runtime.onMessage.addListener(function(request) {
             checkResult.style.color = "black";
         }
         checkResult.style.fontWeight = "normal";
+        chrome.browserAction.setIcon({
+            path: 'checkmark.png'
+        });
     } else {
-         checkResult.innerText = request.data.info;
-         checkResult.style.color = "red";
-         checkResult.style.fontWeight = "bold";
+        // room check failed
+        checkResult.innerText = request.data.info;
+        checkResult.style.color = "red";
+        checkResult.style.fontWeight = "bold";
+        chrome.browserAction.setIcon({
+            path: 'cross.png'
+        });
     }
 })
