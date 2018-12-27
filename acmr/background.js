@@ -4,8 +4,9 @@ var meetingCheckInUrl = "http://meeting.baidu.com/web/checkIn?scheduleId=";
 // check website cookies
 function validCookie(checkRoomsAction) {
     chrome.cookies.getAll({
-        domain: 'baidu.com'
+        domain: 'meeting.baidu.com'
     }, function(cookies) {
+        // console.log(cookies);
         if (cookies.length > 2) {
             // login
             chrome.browserAction.setIcon({
