@@ -10,7 +10,7 @@ function validCookie(checkRoomsAction) {
         if (cookies.length > 2) {
             // login
             chrome.browserAction.setIcon({
-                path: 'checkmark.png'
+                path: 'success.png'
             }, function() {
                 isLogin = true;
             });
@@ -20,13 +20,13 @@ function validCookie(checkRoomsAction) {
         } else {
             // logout
             chrome.browserAction.setIcon({
-                path: 'cross.png'
+                path: 'fail.png'
             }, function() {
                 isLogin = false;
             });
             chrome.runtime.sendMessage({
                 checked: false,
-                data: {info: "Missing cookies, please login first."}
+                data: {info: "Please login first."}
             });
         }
 
@@ -95,7 +95,7 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 })
 
 // check login status
-
+var isLogin = false;
 
 // valide cookies
 validCookie()

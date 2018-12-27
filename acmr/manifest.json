@@ -7,7 +7,7 @@
 	"description": "Auto Check in Meeting Room",
 	"browser_action": {
 		"name": "Augo Check in Meeting Room",
-		"default_icon": "checkmark.png",
+		"default_icon": "success.png",
 		"default_title": "Auto Check in Meeting Room",
 		"default_popup": "popup.html"
 	},

@@ -14,16 +14,16 @@ chrome.runtime.onMessage.addListener(function(request) {
         // room check success
         var checkRooms = request.data.checkRooms;
         if (checkRooms > 0) {
-            checkResult.innerText = String(checkRooms) + " rooms have been checked in.";
+            checkResult.innerText = `Check in ${String(checkRooms)} rooms.`;
             checkResult.style.color = "#96B97D";
         } else {
-            console.log('no rooms');
-            checkResult.innerText = "No rooms need check now.";
+            // console.log('no rooms');
+            checkResult.innerText = "No rooms need to check.";
             checkResult.style.color = "black";
         }
         checkResult.style.fontWeight = "normal";
         chrome.browserAction.setIcon({
-            path: 'checkmark.png'
+            path: 'success.png'
         });
     } else {
         // room check failed
@@ -31,7 +31,7 @@ chrome.runtime.onMessage.addListener(function(request) {
         checkResult.style.color = "red";
         checkResult.style.fontWeight = "bold";
         chrome.browserAction.setIcon({
-            path: 'cross.png'
+            path: 'fail.png'
         });
     }
 })
