@@ -57,10 +57,10 @@ function checkRooms(res) {
             };
             xhr.onerr = function(e) {
                 console.log(e);
-                reject({cookieCheckStatus, requestStatus: false, status: 1, message: 'request error'});
+                reject({cookieCheckStatus, requestStatus: false, status: 1, message: 'Request error'});
             };
             xhr.ontimeout = function() {
-                reject({cookieCheckStatus, requestStatus: false, status: 2, message: 'request timeout'});
+                reject({cookieCheckStatus, requestStatus: false, status: 2, message: 'Request timeout'});
             };
         }
     })
@@ -75,6 +75,7 @@ function successResponse(res) {
         chrome.runtime.sendMessage({
             action: 'rooms-checked',
             status: 0,
+            message: rooms > 0 ? `Checked ${rooms} rooms` : 'No rooms need to check.',
             rooms
         });
         return {status: 0, rooms};
