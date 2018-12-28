@@ -7,7 +7,6 @@ function checkCookies() {
         chrome.cookies.getAll({
             domain: 'meeting.baidu.com'
         }, function(cookies) {
-            console.log('check cookies');
             if (cookies.length > 2) {
                 // cookies check success: login status
                 resolve({cookieCheckStatus: true});
@@ -20,19 +19,15 @@ function checkCookies() {
 }
 
 function checkRooms(res) {
-    console.log('check rooms');
-    console.log(res);
     const cookieCheckStatus = res.cookieCheckStatus;
-    console.log(cookieCheckStatus);
     return new Promise((resolve, reject) => {
         if (cookieCheckStatus) {
             let htmlPage;
             let xhr = new XMLHttpRequest();
-            xhr.open('GET', meetingCheckInUrl, true);
+            xhr.open('GET', meetingListUrl, true);
+            xhr.send();
             // 请求成功
-            console.log(xhr);
             xhr.onload = function() {
-                console.log('on load');
                 htmlPage = xhr.responseText.trim();
                 let checkInLink = $(htmlPage).find('#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)');
                 const rooms = checkInLink.length;
@@ -72,7 +67,6 @@ function checkRooms(res) {
 }
 
 function successResponse(res) {
-    console.log('successResponse');
     let {cookieCheckStatus, requestStatus, rooms, status} = res;
     if (cookieCheckStatus && requestStatus) {
         chrome.browserAction.setIcon({
@@ -88,7 +82,6 @@ function successResponse(res) {
 }
 
 function failResponse(res) {
-    console.log('failResponse');
     let {message, status} = res;
     if (status === 3) {
         chrome.browserAction.setIcon({
@@ -107,13 +100,11 @@ function failResponse(res) {
 // main check action
 let runtime = 0;
 function checkMain() {
-    console.log('main check');
     checkCookies().then(checkRooms).then(successResponse).catch(failResponse).then(res => {
-        console.log('finally');
         if (res.status > 0) {
             console.log(`${new Date().toLocaleString()}--runtime: ${++runtime}\n--${res.message}`);
         } else {
-            console.log(`${new Date().toLocaleString()}--runtime: ${++runtime}\n--checked ${rooms} room(s)`);
+            console.log(`${new Date().toLocaleString()}--runtime: ${++runtime}\n--checked ${res.rooms} room(s)`);
         }
     })
 }
@@ -148,7 +139,6 @@ let timer = setInterval(checkMain, 10 * 60 * 1000);
 // popup action
 chrome.runtime.onMessage.addListener(function(request, sender) {
     if (request.action === 'check-now') {
-        console.log('check now');
         if (timer) {
             timer = null;
         }
