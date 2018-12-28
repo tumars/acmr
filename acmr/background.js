@@ -2,11 +2,23 @@ var meetingListUrl = "http://meeting.baidu.com/web/scheduleList?pageNo=1&dateStr
 var meetingCheckInUrl = "http://meeting.baidu.com/web/checkIn?scheduleId=";
 
 // check website cookies
+function checkCookies() {
+    return new Promise((resolve, reject))
+    chrome.cookies.getAll({
+        domain: 'meeting.baidu.com'
+    }, function(cookies) {
+        if (cookies.length > 2) {
+            // cookies check success: login status
+
+        }
+    })
+}
+
 function validCookie(checkRoomsAction) {
     chrome.cookies.getAll({
         domain: 'meeting.baidu.com'
     }, function(cookies) {
-        // console.log(cookies);
+        console.log(cookies);
         if (cookies.length > 2) {
             // login
             chrome.browserAction.setIcon({
@@ -34,7 +46,6 @@ function validCookie(checkRoomsAction) {
 }
 
 // check room factory function
-var runtime = 0;
 function checkRoomsAction(sendMess) {
     return function() {
         var htmlPage;
@@ -72,14 +83,16 @@ function checkRoomsAction(sendMess) {
                 if (typeof sendMess === 'function') {
                     sendMess(checkRooms);
                 }
-                console.log('runtime: ', ++runtime);
+
             }
         }
     }
 }
 
 // main check action
+var runtime = 0;
 function check() {
+    console.log(`${new Date().toLocaleString()}--runtime: ${++runtime}`);
     validCookie(
         checkRoomsAction(
             function(checkRooms) {

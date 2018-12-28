@@ -5,11 +5,15 @@ checkBtn.addEventListener('click', function() {
     chrome.runtime.sendMessage({chekNow: true});
 })
 
+window.onload = function() {
+    // check cookies when open popup
+    chrome.runtime.sendMessage({});
+}
 
 
 // listen room check status
 chrome.runtime.onMessage.addListener(function(request) {
-    console.log(request);
+    // console.log(request);
     if (request.checked) {
         // room check success
         var checkRooms = request.data.checkRooms;
