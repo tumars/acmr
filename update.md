@@ -1,5 +1,16 @@
 # update log
 
+## 0.8.2 2018-12-27
+添加检查登陆状态后更改图标功能
+
+## 0.8.1 2018-11-28
+1. popup页面添加了立即检查签入按钮和反馈信息显示
+2. 开启了cookies使用权限，并对签入必须的cookies补充了检查行为
+
+## 0.8.0 2018-11-26
+1. 删除了content_script.js及manifest.json中相应配置
+2. 去掉了background.js中测试代码
+
 ## 0.7.5  2018-11-24
 1. 在manifest.json中添加background部分。
 2. 根据脚本实际使用位置，将原background.js改为content_script.js，并放置于content_script部分。

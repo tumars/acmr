@@ -1,48 +1,115 @@
 var meetingListUrl = "http://meeting.baidu.com/web/scheduleList?pageNo=1&dateStr=&buildingId=&roomName=";
 var meetingCheckInUrl = "http://meeting.baidu.com/web/checkIn?scheduleId=";
-// test url
-// var meetingListUrl = "http://127.1.1.1/test.html"
-// var meetingCheckInUrl = "http://127.1.1.1/index?scheduleId=";
 
-function check()  {
-	//var meetingList = $.ajax({url: meetingListUrl, async: false}).responseText;
-	var meetingList;
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", meetingListUrl, true);
-	xhr.onreadystatechange = function() {
-	  if (xhr.readyState == 4) {
-		// WARNING! Might be evaluating an evil script!
-		meetingList = xhr.responseText.trim();
-		var checkInLink = $(meetingList).find(
-		'#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)' );
-		//console.info(checkInLink);
-		var rooms = checkInLink.length;
-		if (rooms != 0) {
-				for (var i = 0; i < rooms; i++){
-						if (checkInLink[i].text == "签入") {
-								console.info("Yeah, I found the meeting room need to check in...");
+// check website cookies
+function checkCookies() {
+    return new Promise((resolve, reject))
+    chrome.cookies.getAll({
+        domain: 'meeting.baidu.com'
+    }, function(cookies) {
+        if (cookies.length > 2) {
+            // cookies check success: login status
 
-								var clickevent = checkInLink[i].getAttribute('onclick');
-								var ids = clickevent.match(/[0-9]+/g);
-
-								if (clickevent.search('checkIn') > 0 && ids != null) {
-									var url = meetingCheckInUrl + ids[0] + "&random=" + Math.random();
-									$.ajax({url: url, async:true});
-								}
-								console.info("check in, dada~~");
-						}
-				}
-		}
-
-	  }
-	}
-	xhr.send();
-	//console.info(meetingList);
-	//location.reload() ;
+        }
+    })
 }
 
-//var t=self.setInterval("check()",  10 * 60 * 1000)
-var t = setInterval(function(){
-	check()
-	}, 10*60*1000
-);
+function validCookie(checkRoomsAction) {
+    chrome.cookies.getAll({
+        domain: 'meeting.baidu.com'
+    }, function(cookies) {
+        console.log(cookies);
+        if (cookies.length > 2) {
+            // login
+            chrome.browserAction.setIcon({
+                path: 'success.png'
+            }, function() {
+                isLogin = true;
+            });
+            if (typeof checkRoomsAction === "function") {
+                checkRoomsAction();
+            }
+        } else {
+            // logout
+            chrome.browserAction.setIcon({
+                path: 'fail.png'
+            }, function() {
+                isLogin = false;
+            });
+            chrome.runtime.sendMessage({
+                checked: false,
+                data: {info: "Please login first."}
+            });
+        }
+
+    })
+}
+
+// check room factory function
+function checkRoomsAction(sendMess) {
+    return function() {
+        var htmlPage;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", meetingListUrl, true);
+        xhr.send();
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState == 4) {
+                htmlPage = xhr.responseText.trim();
+                var checkInLink = $(htmlPage).find('#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)');
+                // console.log(checkInLink);
+                var rooms = checkInLink.length;
+                var checkRooms = 0;
+                if (rooms !== 0) {
+                    for (var i = 0; i < rooms; i++){
+                        // 链接文本用utf-16编码检查 签入
+                        if (checkInLink[i].text === "签入" || checkInLink[i].text === "\u7B7E\u5165") {
+                            console.info("Yeah, I found the meeting room need to check in...");
+                            var clickevent = checkInLink[i].getAttribute('onclick');
+                            var ids = clickevent.match(/[0-9]+/g);
+                            if (clickevent.search('checkIn') > 0 && ids !== null) {
+                                var url = meetingCheckInUrl + ids[0] + "&random=" + Math.random();
+                                console.log(url);
+                                $.ajax({
+                                    url: url,
+                                    async:true,
+                                    timeout: 4000
+                                });
+                                console.log("send check in request, dada~~");
+                            }
+                            checkRooms++;
+                        }
+                    }
+                }
+                if (typeof sendMess === 'function') {
+                    sendMess(checkRooms);
+                }
+
+            }
+        }
+    }
+}
+
+// main check action
+var runtime = 0;
+function check() {
+    console.log(`${new Date().toLocaleString()}--runtime: ${++runtime}`);
+    validCookie(
+        checkRoomsAction(
+            function(checkRooms) {
+                chrome.runtime.sendMessage({checked:true, data: {checkRooms: checkRooms}});
+    }))
+}
+
+// check immediately
+chrome.runtime.onMessage.addListener(function(request, sender) {
+    if (request.chekNow === true) {
+        check();
+    }
+})
+
+// check login status
+var isLogin = false;
+
+// valide cookies
+validCookie()
+var timer = self.setInterval(check, 10 * 60 * 1000);
