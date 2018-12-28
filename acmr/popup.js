@@ -1,41 +1,47 @@
-var checkResult = document.getElementById('check-result');
-var checkBtn = document.getElementById('check-now-btn');
+
+let checkBtn = document.getElementById('check-now-btn');
 
 checkBtn.addEventListener('click', function() {
-    chrome.runtime.sendMessage({chekNow: true});
+    console.log('check now');
+    chrome.runtime.sendMessage({
+        action: 'check-now'
+    });
 })
 
 window.onload = function() {
     // check cookies when open popup
-    chrome.runtime.sendMessage({});
+    chrome.runtime.sendMessage({
+        action: 'query-cookies-status'
+    });
+}
+
+function setResultText({err, text, rooms}) {
+    let checkResult = document.getElementById('check-result');
+    if (err) {
+        checkResult.style.color = 'red';
+        checkResult.style.fontWeight = 'bold';
+    } else {
+        checkResult.style.fontWeight = 'normal';
+        checkResult.style.color = rooms && rooms > 0 ? '#96B97D' : 'black';
+    }
+    checkResult.innerText = text;
 }
 
 
-// listen room check status
-chrome.runtime.onMessage.addListener(function(request) {
-    // console.log(request);
-    if (request.checked) {
-        // room check success
-        var checkRooms = request.data.checkRooms;
-        if (checkRooms > 0) {
-            checkResult.innerText = `Check in ${String(checkRooms)} rooms.`;
-            checkResult.style.color = "#96B97D";
-        } else {
-            // console.log('no rooms');
-            checkResult.innerText = "No rooms need to check.";
-            checkResult.style.color = "black";
-        }
-        checkResult.style.fontWeight = "normal";
-        chrome.browserAction.setIcon({
-            path: 'success.png'
-        });
-    } else {
-        // room check failed
-        checkResult.innerText = request.data.info;
-        checkResult.style.color = "red";
-        checkResult.style.fontWeight = "bold";
-        chrome.browserAction.setIcon({
-            path: 'fail.png'
-        });
+// background.js event listener
+chrome.runtime.onMessage.addListener(function(res) {
+    if (res.action === 'cookies-checked') {
+        const opt = {
+            err: res.status > 0,
+            text: res.status > 0 ? 'cookie checked fail' : '',
+        };
+        setResultText(opt)
+    } else if (res.action === 'rooms-checked') {
+        const opt = {
+            err: res.status > 0,
+            text: res.message,
+            rooms: res.rooms
+        };
+        setResultText(opt);
     }
 })
