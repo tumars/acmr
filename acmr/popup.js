@@ -2,7 +2,6 @@
 let checkBtn = document.getElementById('check-now-btn');
 
 checkBtn.addEventListener('click', function() {
-    console.log('check now');
     chrome.runtime.sendMessage({
         action: 'check-now'
     });
