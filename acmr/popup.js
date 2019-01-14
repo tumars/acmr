@@ -15,6 +15,8 @@ window.onload = function() {
 }
 
 function setResultText({err, text, rooms}) {
+    console.log('print result in pop');
+    console.log(text);
     let checkResult = document.getElementById('check-result');
     if (err) {
         checkResult.style.color = 'red';
