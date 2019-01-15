@@ -1,16 +1,30 @@
 
 let checkBtn = document.getElementById('check-now-btn');
+let showNameBtn = document.getElementById('show-name-btn');
 
 checkBtn.addEventListener('click', function() {
+    // send message to background to check rooms immediatelly
     chrome.runtime.sendMessage({
-        action: 'check-now'
+        action: 'background-check-now'
     });
+})
+
+showNameBtn.addEventListener('click', function() {
+    // send message to content scripts to change page
+    try {
+        chrome.tabs.executeScript(null, {
+            file: 'content.js'
+        })
+    } catch (e) {
+
+    }
+    
 })
 
 window.onload = function() {
     // check cookies when open popup
     chrome.runtime.sendMessage({
-        action: 'query-cookies-status'
+        action: 'background-query-cookies-status'
     });
 }
 
@@ -31,13 +45,13 @@ function setResultText({err, text, rooms}) {
 
 // background.js event listener
 chrome.runtime.onMessage.addListener(function(res) {
-    if (res.action === 'cookies-checked') {
+    if (res.action === 'popup-cookies-checked') {
         const opt = {
             err: res.status > 0,
             text: res.status > 0 ? 'cookie checked fail' : '',
         };
         setResultText(opt)
-    } else if (res.action === 'rooms-checked') {
+    } else if (res.action === 'popup-rooms-checked') {
         const opt = {
             err: res.status > 0,
             text: res.message,

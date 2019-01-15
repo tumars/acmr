@@ -95,7 +95,7 @@ function successResponse(res) {
             path: 'success.png'
         });
         chrome.runtime.sendMessage({
-            action: 'rooms-checked',
+            action: 'popup-rooms-checked',
             status: SUCCESS,
             message: rooms > 0 ? `Checked ${rooms} rooms` : 'No rooms need to check.',
             rooms
@@ -113,7 +113,7 @@ function failResponse(err) {
     });
     
     chrome.runtime.sendMessage({
-        action: 'rooms-checked',
+        action: 'popup-rooms-checked',
         status: status || 3,
         message: message || 'request failed!'
     });
@@ -136,10 +136,10 @@ function queryCookieStatus() {
     checkCookies()
     .then(
         function(res) {
-            return {action: 'cookies-checked', status: 0};
+            return {action: 'popup-cookies-checked', status: 0};
         },
         function(res) {
-            return {action: 'cookies-checked', status: 1};
+            return {action: 'popup-cookies-checked', status: 1};
         }
     )
     .then(res => {
@@ -169,16 +169,16 @@ function randomInvoke() {
 // start to work
 randomInvoke();
 
-// popup action
+// action from popup
 chrome.runtime.onMessage.addListener(function(request, sender) {
-    if (request.action === 'check-now') {
+    if (request.action === 'background-check-now') {
         if (timer) {
             timer = null;
         }
         checkMain();
         randomInvoke();
         timer = setInterval(checkMain, 10 * 60 * 1000);
-    } else if (request.action === 'query-cookies-status') {
+    } else if (request.action === 'background-query-cookies-status') {
         queryCookieStatus();
     }
 });
