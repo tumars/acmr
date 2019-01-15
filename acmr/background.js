@@ -1,6 +1,8 @@
 const meetingListUrl = "http://meeting.baidu.com/web/scheduleList?pageNo=1&dateStr=&buildingId=&roomName=";
 const meetingCheckInUrl = "http://meeting.baidu.com/web/checkIn?scheduleId=";
 
+const SUCCESS = 0, FAIL_REQUEST = 1, FAIL_TIMEOUT = 2, FAIL_COOKIE = 3;
+
 // check website cookies
 function checkCookies() {
     return new Promise((resolve, reject) => {
@@ -12,7 +14,7 @@ function checkCookies() {
                 resolve({cookieCheckStatus: true});
             } else {
                 // cookies check failed: logout status
-                reject({cookieCheckStatus: false, status: 3, message: 'cookie checked fail'});
+                reject({cookieCheckStatus: false, status: FAIL_COOKIE, message: 'cookie checked fail'});
             }
         });
     });
@@ -27,35 +29,53 @@ function checkRooms(res) {
             xhr.open('GET', meetingListUrl, true);
             xhr.send();
             // 请求成功
-            xhr.onload = function() {
-                htmlPage = xhr.responseText.trim();
-                let checkInLink = $(htmlPage).find('#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)');
-                const rooms = checkInLink.length;
-                let checkedRooms = 0;
-                if (rooms !== 0) {
-                    for (let i = 0; i < rooms; i++){
-                        // 链接文本用utf-16编码检查 签入
-                        if (checkInLink[i].text === "签入" || checkInLink[i].text === "\u7B7E\u5165") {
-                            console.info("Yeah, I found the meeting room need to check in...");
-                            let clickevent = checkInLink[i].getAttribute('onclick');
-                            let ids = clickevent.match(/[0-9]+/g);
-                            if (clickevent.search('checkIn') > 0 && ids !== null) {
-                                let url = meetingCheckInUrl + ids[0] + "&random=" + Math.random();
-                                console.log(url);
-                                $.ajax({
-                                    url: url,
-                                    async:true,
-                                    timeout: 4000
-                                });
-                                console.log("send check in request, dada~~");
+            xhr.onreadystatechange = function(e) {
+                try {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        htmlPage = xhr.responseText.trim();
+                        let checkInLink = $(htmlPage).find('#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)');
+                        const rooms = checkInLink.length;
+                        let checkedRooms = 0;
+                        if (rooms !== 0) {
+                            for (let i = 0; i < rooms; i++) {
+                                // 链接文本用utf-16编码检查 签入
+                                if (checkInLink[i].text === "签入" || checkInLink[i].text === "\u7B7E\u5165") {
+                                    console.log("# Yeah, I found the meeting room need to check in...");
+                                    let clickevent = checkInLink[i].getAttribute('onclick');
+                                    let ids = clickevent.match(/[0-9]+/g);
+                                    if (clickevent.search('checkIn') > 0 && ids !== null) {
+                                        let url = meetingCheckInUrl + ids[0] + "&random=" + Math.random();
+                                        console.log(url);
+                                        $.ajax({
+                                            url: url,
+                                            async: true,
+                                            timeout: 4000
+                                        });
+                                        console.log("# send check in request, dada~~");
+                                    }
+                                    checkedRooms++;
+                                }
                             }
-                            checkedRooms++;
                         }
+                        resolve({
+                            cookieCheckStatus,
+                            requestStatus: true,
+                            status: SUCCESS,
+                            rooms: checkedRooms
+                        });
+                    } else if (xhr.readyState === 4 && xhr.status !== 200) {
+                        throw {
+                            cookieCheckStatus: true,
+                            requestStatus: false,
+                            status: FAIL_REQUEST,
+                            message: `Request error: ${xhr.status}`
+                        };
                     }
+                } catch (err) {
+                    reject(err)
                 }
-                resolve({cookieCheckStatus, requestStatus: true, status: 0, rooms: checkedRooms});
             };
-            xhr.onerr = function(e) {
+            xhr.onerror = function (e) {
                 console.log(e);
                 reject({cookieCheckStatus, requestStatus: false, status: 1, message: 'Request error'});
             };
@@ -63,10 +83,12 @@ function checkRooms(res) {
                 reject({cookieCheckStatus, requestStatus: false, status: 2, message: 'Request timeout'});
             };
         }
-    })
+    });
 }
 
 function successResponse(res) {
+    // console.log('successRes')
+    // console.log(res)
     let {cookieCheckStatus, requestStatus, rooms, status} = res;
     if (cookieCheckStatus && requestStatus) {
         chrome.browserAction.setIcon({
@@ -74,7 +96,7 @@ function successResponse(res) {
         });
         chrome.runtime.sendMessage({
             action: 'rooms-checked',
-            status: 0,
+            status: SUCCESS,
             message: rooms > 0 ? `Checked ${rooms} rooms` : 'No rooms need to check.',
             rooms
         });
@@ -82,21 +104,21 @@ function successResponse(res) {
     }
 }
 
-function failResponse(res) {
-    let {message, status} = res;
-    if (status === 3) {
-        chrome.browserAction.setIcon({
-            path: 'fail.png'
-        });
-    }
+function failResponse(err) {
+    console.log('!!-fail Response:-!!')
+    console.log(err);
+    let {message, status} = err;
+    chrome.browserAction.setIcon({
+        path: 'fail.png'
+    });
+    
     chrome.runtime.sendMessage({
         action: 'rooms-checked',
-        status,
-        message
+        status: status || 3,
+        message: message || 'request failed!'
     });
     return {status, message};
 }
-
 
 // main check action
 let runtime = 0;
@@ -121,6 +143,7 @@ function queryCookieStatus() {
         }
     )
     .then(res => {
+        // console.log('cookie checked');
         chrome.browserAction.setIcon({
             path: res.status > 0 ? 'fail.png' : 'success.png'
         });
@@ -134,8 +157,17 @@ function queryCookieStatus() {
     })
 }
 
-
-let timer = setInterval(checkMain, 10 * 60 * 1000);
+let timer;
+function randomInvoke() {
+    let base = 8 + Math.random() * 6;
+    timer = setTimeout(function invoke() {
+        checkMain();
+        base = 8 + Math.random() * 6;
+        timer = setTimeout(invoke, base * 60 * 1000)
+    }, base * 60 * 1000)
+}
+// start to work
+randomInvoke();
 
 // popup action
 chrome.runtime.onMessage.addListener(function(request, sender) {
@@ -144,6 +176,7 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
             timer = null;
         }
         checkMain();
+        randomInvoke();
         timer = setInterval(checkMain, 10 * 60 * 1000);
     } else if (request.action === 'query-cookies-status') {
         queryCookieStatus();
