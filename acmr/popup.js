@@ -9,16 +9,18 @@ checkBtn.addEventListener('click', function() {
     });
 })
 
+const urlTestReg = /^http(?:s|):\/\/meeting\.baidu\.com.*home$/;
 showNameBtn.addEventListener('click', function() {
-    // send message to content scripts to change page
-    try {
-        chrome.tabs.executeScript(null, {
-            file: 'content.js'
-        })
-    } catch (e) {
-
-    }
-    
+    // send message to content scripts to change page style
+    chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    }, function (tabs) {
+        let tab = tabs[0];
+        if (urlTestReg.test(tab.url)) {
+            chrome.tabs.executeScript(null, {file: 'content.js'});
+        }
+    })
 })
 
 window.onload = function() {
@@ -29,8 +31,8 @@ window.onload = function() {
 }
 
 function setResultText({err, text, rooms}) {
-    console.log('print result in pop');
-    console.log(text);
+    // console.log('print result in pop');
+    // console.log(text);
     let checkResult = document.getElementById('check-result');
     if (err) {
         checkResult.style.color = 'red';

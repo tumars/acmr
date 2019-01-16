@@ -1,6 +1,5 @@
 {
     "manifest_version": 2,
-
     "name": "AutoCheckinMR",
     "version": "0.9.1",
 
@@ -18,11 +17,5 @@
     "background": {
         "page": "background.html",
         "script": ["jquery-2.1.3.min.js", "background.js"]
-    },
-    "content_scripts": [{
-        "matches": ["*://meeting.baidu.com/*"],
-        "js": ["content.js"],
-        "run_at": "document_idle",
-        "all_frames": true
-    }]
+    }
 }

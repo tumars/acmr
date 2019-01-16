@@ -1,4 +1,3 @@
-
 function showNames() {
     let divEles = document.querySelectorAll('div.time-list.other > div.other > div.other-tip:first-child');
     let isNotShown = (window.getComputedStyle(divEles[0]).display === 'none');
@@ -12,5 +11,4 @@ function showNames() {
         });
     }
 }
-
-showNames()
+showNames();
