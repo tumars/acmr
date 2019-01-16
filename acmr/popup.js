@@ -9,7 +9,7 @@ checkBtn.addEventListener('click', function() {
     });
 })
 
-const urlTestReg = /^http(?:s|):\/\/meeting\.baidu\.com.*home$/;
+const urlTestReg = /^http(?:s|):\/\/meeting\.baidu\.com.*home.*/;
 showNameBtn.addEventListener('click', function() {
     // send message to content scripts to change page style
     chrome.tabs.query({
