@@ -1,4 +1,6 @@
 # Update log
+## 0.9.2 2019-01-16
+1. 修改content ULR匹配规则，修复翻页后Show Name失效的问题
 
 ## 0.9.1 2019-01-16
 1. popup添加了Show Name按钮，以显示新版界面名称
