@@ -1,5 +1,7 @@
 const meetingListUrl = "http://meeting.baidu.com/web/scheduleList?pageNo=1&dateStr=&buildingId=&roomName=";
 const meetingCheckInUrl = "http://meeting.baidu.com/web/checkIn?scheduleId=";
+// 签入地址
+// http://meeting.baidu.com/h5/checkInByRoomAndUser?scheduleId=24880663&roomId=7026142&t=1547610367403
 
 const SUCCESS = 0, FAIL_REQUEST = 1, FAIL_TIMEOUT = 2, FAIL_COOKIE = 3;
 
