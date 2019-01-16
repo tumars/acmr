@@ -1,4 +1,9 @@
-# update log
+# Update log
+
+## 0.9.1 2019-01-16
+1. popup添加了Show Name按钮，以显示新版界面名称
+2. popup添加了Order Room按钮，导航到新版预订页
+3. 优化了background流程逻辑
 
 ## 0.9.0 2018-12-28
 1. 更换了登陆状态图标
