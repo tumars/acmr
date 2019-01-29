@@ -1,6 +1,5 @@
 
 let checkBtn = document.getElementById('check-now-btn');
-let showNameBtn = document.getElementById('show-name-btn');
 
 checkBtn.addEventListener('click', function() {
     // send message to background to check rooms immediatelly
