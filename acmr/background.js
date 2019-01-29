@@ -1,7 +1,5 @@
 const meetingListUrl = 'http://meeting.baidu.com/h5/getUnfinishScheduleByUser';
 const meetingCheckInUrl = 'http://meeting.baidu.com/web/checkIn';
-// 签入地址
-// http://meeting.baidu.com/h5/checkInByRoomAndUser?scheduleId=24880663&roomId=7026142&t=1547610367403
 
 const SUCCESS = 0,
     FAIL_REQUEST = 1,
@@ -31,6 +29,7 @@ function checkCookies() {
     });
 }
 
+// send request to check in
 function sendCheckInRequest(roomId) {
     return new Promise((resolve, reject) => {
         let url = `${meetingCheckInUrl}?scheduleId=${roomId}&random=${Math.random()}`;
@@ -87,11 +86,11 @@ function checkRooms(res) {
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         let json = xhr.response;
                         let roomList = json.data.list.reduce(function (resultArr, item) {
-                            // 会议室状态字段   未开始  可签入  已签入
-                            // canCancel      1      1      0
-                            // canCheckIn     0      1      0
-                            // canCheckOut    0      0      1
-                            // canTransfer    1      1      0
+                            // status_field   havn't_start  can_check_in  hava_checked_in
+                            // canCancel      1             1             0
+                            // canCheckIn     0             1             0
+                            // canCheckOut    0             0             1
+                            // canTransfer    1             1             0
                             if (item.isNeedCheckIn) {
                                 resultArr.push({
                                     id: item.id,
@@ -105,9 +104,9 @@ function checkRooms(res) {
                             }
                             return resultArr;
                         }, []);
-                        // 可签入房间
+                        // rooms which can check in right now
                         let canCheckInRooms = roomList.filter(item => item.canCheckIn);
-                        // 待签入房间
+                        // rooms need check in future
                         let needCheckInRooms = roomList.filter(item => !item.canCheckIn && item.canCancel);
                         console.log(`## <${canCheckInRooms.length}> rooms can check in right now. <${needCheckInRooms.length}> rooms need check in.`)
                         let checkPrArr = canCheckInRooms.map(item => {
@@ -154,82 +153,6 @@ function checkRooms(res) {
         }
     });
 }
-
-// function checkRooms(res) {
-//     const cookieCheckStatus = res.cookieCheckStatus;
-//     return new Promise((resolve, reject) => {
-//         if (cookieCheckStatus) {
-//             let htmlPage;
-//             let xhr = new XMLHttpRequest();
-//             xhr.open('GET', meetingListUrl, true);
-//             xhr.send();
-//             // 请求成功
-//             xhr.onreadystatechange = function (e) {
-//                 try {
-//                     if (xhr.readyState === 4 && xhr.status === 200) {
-//                         htmlPage = xhr.responseText.trim();
-//                         let checkInLink = $(htmlPage).find('#tab1 > table > tbody:nth-child(3) > tr > td:nth-child(11) > a:nth-child(1)');
-//                         const rooms = checkInLink.length;
-//                         let checkedRooms = 0;
-//                         if (rooms !== 0) {
-//                             for (let i = 0; i < rooms; i++) {
-//                                 // 链接文本用utf-16编码检查 签入
-//                                 if (checkInLink[i].text === "签入" || checkInLink[i].text === "\u7B7E\u5165") {
-//                                     console.log("# Yeah, I found the meeting room need to check in...");
-//                                     let clickevent = checkInLink[i].getAttribute('onclick');
-//                                     let ids = clickevent.match(/[0-9]+/g);
-//                                     if (clickevent.search('checkIn') > 0 && ids !== null) {
-//                                         let url = meetingCheckInUrl + ids[0] + "&random=" + Math.random();
-//                                         console.log(url);
-//                                         $.ajax({
-//                                             url: url,
-//                                             async: true,
-//                                             timeout: 4000
-//                                         });
-//                                         console.log("# send check in request, dada~~");
-//                                     }
-//                                     checkedRooms++;
-//                                 }
-//                             }
-//                         }
-//                         resolve({
-//                             cookieCheckStatus,
-//                             requestStatus: true,
-//                             status: SUCCESS,
-//                             rooms: checkedRooms
-//                         });
-//                     } else if (xhr.readyState === 4 && xhr.status !== 200) {
-//                         throw {
-//                             cookieCheckStatus: true,
-//                             requestStatus: false,
-//                             status: FAIL_REQUEST,
-//                             message: `Request error: ${xhr.status}`
-//                         };
-//                     }
-//                 } catch (err) {
-//                     reject(err)
-//                 }
-//             };
-//             xhr.onerror = function (e) {
-//                 console.log(e);
-//                 reject({
-//                     cookieCheckStatus,
-//                     requestStatus: false,
-//                     status: 1,
-//                     message: 'Request error'
-//                 });
-//             };
-//             xhr.ontimeout = function () {
-//                 reject({
-//                     cookieCheckStatus,
-//                     requestStatus: false,
-//                     status: 2,
-//                     message: 'Request timeout'
-//                 });
-//             };
-//         }
-//     });
-// }
 
 function successResponse(res) {
     // console.log('successRes')
@@ -337,6 +260,7 @@ randomInvoke();
 
 // action from popup
 chrome.runtime.onMessage.addListener(function (request, sender) {
+    // instruction: check right now
     if (request.action === 'background-check-now') {
         if (timer) {
             timer = null;
@@ -344,6 +268,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         checkMain();
         randomInvoke();
         timer = setInterval(checkMain, 10 * 60 * 1000);
+    // instruction: check cookies to judge login status
     } else if (request.action === 'background-query-cookies-status') {
         queryCookieStatus();
     }

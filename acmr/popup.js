@@ -8,19 +8,20 @@ checkBtn.addEventListener('click', function() {
     });
 })
 
-const urlTestReg = /^http(?:s|):\/\/meeting\.baidu\.com.*home.*/;
-showNameBtn.addEventListener('click', function() {
-    // send message to content scripts to change page style
-    chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    }, function (tabs) {
-        let tab = tabs[0];
-        if (urlTestReg.test(tab.url)) {
-            chrome.tabs.executeScript(null, {file: 'content.js'});
-        }
-    })
-})
+// const urlTestReg = /^http(?:s|):\/\/meeting\.baidu\.com.*home.*/;
+// let showNameBtn = document.getElementById('show-name-btn');
+// showNameBtn.addEventListener('click', function() {
+//     // send message to content scripts to change page style
+//     chrome.tabs.query({
+//         active: true,
+//         currentWindow: true
+//     }, function (tabs) {
+//         let tab = tabs[0];
+//         if (urlTestReg.test(tab.url)) {
+//             chrome.tabs.executeScript(null, {file: 'content.js'});
+//         }
+//     })
+// })
 
 window.onload = function() {
     // check cookies when open popup
