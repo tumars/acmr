@@ -1,53 +1,167 @@
+<!DOCTYPE html>
 <html>
+    <meta charset="UTF-8">
     <head>
         <style>
-            .container {
-                width:110px;
-                height:200px
+            * {
+                margin: 0;
+                padding: 0;
             }
-            h3, h4 {
+            .container {
+                width:200px;
+                padding: 10px;
+                /* height:200px */
+            }
+            h3 {
                 margin: 5px auto;
                 text-align: center;
             }
-            p {
-                margin: 8px auto;
-                width: 100px;
-            }
             button {
                 width: 100%;
+                line-height: 2.5;
+                margin: 10px auto;
                 padding: 4px auto;
-                color: #444;
+                border: 1px solid #3469C1; 
+                outline: none; 
+                border-radius: 5px;
+                color: #fff;
+                font-size: 18px;
+                background-color: #4285f4;
+                box-shadow: 0 2px 5px 0 #ccc;
+                transition: box-shadow .3s ease;
+                cursor: pointer;
             }
             button:hover {
-                background-color: #ddd;
+                box-shadow: 0 2px 5px 0 #999;
             }
-            a:link, a:active, a:visited, a:hover {
-                color: #444;
+            button:disabled {
+                background: #999;
+                border: none;
+                cursor: auto;
+            }
+            button:disabled:hover {
+                box-shadow: 0 2px 5px 0 #ccc;
+            }
+            #check-now-btn:active {
+                background-color: #3469C1;
+            }
+            #login-btn {
+                display: none;
+                border-color: #CC4C37;
+                background: #FF745E
+            }
+            #login-btn:active {
+                background-color: #CC4C37;
+            }
+            #login-btn a,
+            #login-btn a:active 
+            #login-btn a:visited {
+                color: #fff;
                 text-decoration: none;
+            }
+            #check-result {
+                padding: 10px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            #room-list {
+                display: block;
+                width: 100%;
+                margin: 15px auto;
+            }
+            
+            #room-list .can-check {
+                font-size: 20px;
+                color: #67c23a;
+            }
+            #room-list .need-check {
+                opacity: .9;
+                margin-top: 12px;
+                padding: 0 6px 0 4px;
+                line-height: 1.5;
+                color: #4285f4;
+            }
+            #room-list li{
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+                align-items:baseline;
+                list-style: none;
+            }
+            #room-list span{
+                display: block;
+            }
+            #room-list img{
+                position: relative;
+                top: 3px;
+                display: inline-block;
+                width: 16px;
+                margin-right: 5px;
+            }
+            #room-list .can-check img {
+                width: 26px;
+                top: 6px;
+            }
+            .bottom-group {
+                display: flex;
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: dashed 1px #666;
+                justify-content: space-between;
+                align-items: center;
+            }
+            #control {
+                display: block;
+                width: 30px;
+                height: 30px;
+                border: 50%;
+                background: url(./c-pause.png);
+                background-size: 100%;
+                cursor: pointer;
+                transition: filter .5s ease;
+                overflow: hidden;
+            }
+            #control[data-status='stop'] {
+                background: url(./c-restart.png);
+                background-size: 100%;
+                cursor: pointer;
+            }
+            #control:hover {
+                filter: drop-shadow(0 0 2px #999);
+            }
+            .links {
+                display: flex;
+                justify-content: space-between;
+            }
+            .links a {
+                display: block;
+                margin-left: 8px;
+                font-size: 12px;
+                color: #1a0dab;
+                opacity: .8;
             }
         </style>
     </head>
     <body>
         <div class="container">
             <h3>Auto Checkin</h3>
-            <p >
-                <button type="button">
+
+            <button type="button" id="check-now-btn">
+                Check Now
+            </button>
+            <div id="room-list"></div>
+            <p id="check-result"></p>
+            <button type="button" id="login-btn">
+                <a href="http://meeting.baidu.com/#/home" target="_blank">Log In</a>
+            </button>
+            <div class="bottom-group">
+                <div id="control" data-status="run"></div>
+                <div class="links">
                     <a href="http://meeting.baidu.com/#/home" target="_blank">Order Room</a>
-                </button>
-            </p>
-            <p>
-                <button type="button">
-                    <a href="http://meeting.baidu.com/#/myMeeting" target="_blank">Room List</a>
-                </button>
-            </p>
-            <p>
-                <button type="button" id="check-now-btn">
-                    <a>Check Now</a>
-                </button>
-            </p>
-        
-            <h4 style="margin-bottom: 8px;">Check status:</h4>
-            <p style="font-size: 80%;" id="check-result"></p>
+                    <!-- <a href="http://meeting.baidu.com/#/myMeeting" target="_blank">Room List</a> -->
+                </div>
+            </div>
+            
         </div>
         <script type="text/javascript" src="./popup.js"></script>
     </body>

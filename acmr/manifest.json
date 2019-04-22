@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "AutoCheckinMR",
-    "version": "0.9.3",
+    "version": "1.0.0",
 
     "description": "Auto Check in Meeting Room",
     "browser_action": {
@@ -11,11 +11,21 @@
         "default_popup": "popup.html"
     },
     "permissions": [
+        "storage",
+        "webRequest",
+        "webRequestBlocking",
         "cookies",
-        "http://meeting.baidu.com/"
+        "notifications",
+        "http://meeting.baidu.com/",
+        "http://uuap.baidu.com/",
+        "https://uuap.baidu.com/"
     ],
     "background": {
         "page": "background.html",
         "script": ["background.js"]
-    }
+    },
+    "web_accessible_resources": [
+        "fail.png",
+        "success.png"
+    ]
 }
